@@ -219,9 +219,9 @@ void rvWeaponRocketLauncher::OnLaunchProjectile ( idProjectile* proj ) {
 	}
 
 	// Launch the projectile
-	idEntityPtr<idEntity> ptr;
-	ptr = proj;
-	guideEnts.Append ( ptr );	
+		idEntityPtr<idEntity> ptr;
+		ptr = proj;
+		guideEnts.Append ( ptr );
 }
 
 /*
@@ -445,8 +445,8 @@ stateResult_t rvWeaponRocketLauncher::State_Fire ( const stateParms_t& parms ) {
 	};	
 	switch ( parms.stage ) {
 		case STAGE_INIT:
-			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));		
-			Attack ( false, 1, spread, 0, 1.0f );
+			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
+			Attack ( false, 10, spread + 8, 0, 1.0f );
 			PlayAnim ( ANIMCHANNEL_LEGS, "fire", parms.blendFrames );	
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
@@ -455,8 +455,8 @@ stateResult_t rvWeaponRocketLauncher::State_Fire ( const stateParms_t& parms ) {
 				SetState ( "Fire", 0 );
 				return SRESULT_DONE;
 			}
-			if ( gameLocal.time > nextAttackTime && AnimDone ( ANIMCHANNEL_LEGS, 4 ) ) {
-				SetState ( "Idle", 4 );
+			if ( ( gameLocal.time > nextAttackTime && AnimDone ( ANIMCHANNEL_LEGS, 4 ) ) ) {
+				SetState ( "Fire", 8 );
 				return SRESULT_DONE;
 			}
 			return SRESULT_WAIT;
