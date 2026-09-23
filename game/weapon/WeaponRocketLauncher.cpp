@@ -48,6 +48,9 @@ protected:
 	float								reloadRate;
 
 	bool								idleEmpty;
+	bool								toggleFire; // toggles auto-fire
+	bool								attackPress; // stores if attack button was pressed
+	
 
 private:
 
@@ -140,6 +143,13 @@ rvWeaponRocketLauncher::Think
 void rvWeaponRocketLauncher::Think ( void ) {	
 	trace_t	tr;
 	int		i;
+
+	// if attack was just pressed and isn't currently being pressed, toggle auto-fire
+	if (wsfl.attack && !attackPress) {
+		toggleFire = !toggleFire;
+	}
+
+	attackPress = wsfl.attack;
 
 	rocketThread.Execute ( );
 
@@ -424,7 +434,7 @@ stateResult_t rvWeaponRocketLauncher::State_Idle( const stateParms_t& parms ) {
 				SetState ( "Lower", 4 );
 				return SRESULT_DONE;
 			}		
-			if ( gameLocal.time > nextAttackTime && wsfl.attack && ( gameLocal.isClient || AmmoInClip ( ) ) ) {
+			if ( toggleFire && gameLocal.time > nextAttackTime && wsfl.attack && ( gameLocal.isClient || AmmoInClip ( ) ) ) {
 				SetState ( "Fire", 2 );
 				return SRESULT_DONE;
 			}
@@ -451,12 +461,16 @@ stateResult_t rvWeaponRocketLauncher::State_Fire ( const stateParms_t& parms ) {
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
 		case STAGE_WAIT:			
-			if ( wsfl.attack && gameLocal.time >= nextAttackTime && ( gameLocal.isClient || AmmoInClip ( ) ) && !wsfl.lowerWeapon ) {
+			if (!toggleFire) {
+				SetState( "Idle" , 4 );
+				return SRESULT_DONE;
+			}
+			if ( gameLocal.time >= nextAttackTime && ( gameLocal.isClient || AmmoInClip ( ) ) && !wsfl.lowerWeapon ) {
 				SetState ( "Fire", 0 );
 				return SRESULT_DONE;
 			}
 			if ( ( gameLocal.time > nextAttackTime && AnimDone ( ANIMCHANNEL_LEGS, 4 ) ) ) {
-				SetState ( "Fire", 8 );
+				SetState ( "Idle", 4 );
 				return SRESULT_DONE;
 			}
 			return SRESULT_WAIT;
