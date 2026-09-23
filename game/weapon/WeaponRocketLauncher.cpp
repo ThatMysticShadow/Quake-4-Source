@@ -460,7 +460,8 @@ stateResult_t rvWeaponRocketLauncher::State_Fire ( const stateParms_t& parms ) {
 			PlayAnim ( ANIMCHANNEL_LEGS, "fire", parms.blendFrames );	
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
-		case STAGE_WAIT:			
+		case STAGE_WAIT:
+			// if the auto-fire is toggled off, put the weapon back into an idle state
 			if (!toggleFire) {
 				SetState( "Idle" , 4 );
 				return SRESULT_DONE;
